@@ -1,4 +1,5 @@
-const fs = require('fs')
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const db = require('../models')
 const Restaurant = db.Restaurant
 
@@ -22,6 +23,7 @@ const adminController = {
   },
   // create new restaurant
   postRestaurant: (req, res) => {
+    console.log('------------req.file: ', req.file)
     const { name, tel, address, opening_hours, description } = req.body
     if (!name) {
       req.flash('error_messages', "name didn't exist")
@@ -29,20 +31,19 @@ const adminController = {
     }
     const { file } = req // multer attach file to req.file
     if (file) {
-      fs.readFile(file.path, (err, data) => {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
+        console.log('-------uploading image---------')
         if (err) console.log('Error: ', err)
         // write data into upload folder then save to database
-        fs.writeFile(`upload/${file.originalname}`, data, () => {
-          return Restaurant.create({
-            name, tel, address, opening_hours, description,
-            image: file ? `/upload/${file.originalname}` : null
-          })
-            .then(() => {
-              req.flash('success_messages', 'restaurant was successfully created')
-              res.redirect('/admin/restaurants')
-            })
-
+        return Restaurant.create({
+          name, tel, address, opening_hours, description,
+          image: file ? img.data.link : null
         })
+          .then(() => {
+            req.flash('success_messages', 'restaurant was successfully created')
+            res.redirect('/admin/restaurants')
+          })
       })
     } else {
       return Restaurant.create({
@@ -72,27 +73,28 @@ const adminController = {
     }
     const { file } = req
     if (file) {
-      fs.readFile(file.path, (err, data) => {
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
+        console.log('-------uploading image---------')
         if (err) console.log('Error: ', err)
-        fs.writeFile(`upload/${file.originalname}`, data, () => {
-          return Restaurant.findByPk(req.params.id)
-            .then(restaurant => {
-              return restaurant.update({ // sequelize update
-                name, tel, address, opening_hours, description,
-                image: file ? `/upload/${file.originalname}` : restaurant.image
-              })
+        return Restaurant.findByPk(req.params.id)
+          .then(restaurant => {
+            return restaurant.update({ // sequelize update
+              name, tel, address, opening_hours, description,
+              image: file ? img.data.link : restaurant.image
             })
-            .then(() => {
-              req.flash('success_messages', 'restaurant was successfully updated')
-              return res.redirect('/admin/restaurants')
-            })
-        })
+          })
+          .then(() => {
+            req.flash('success_messages', 'restaurant was successfully updated')
+            return res.redirect('/admin/restaurants')
+          })
       })
+
     } else {
       return Restaurant.findByPk(req.params.id) // no need raw:true since we still need to use sequelize update
         .then(restaurant => {
           return restaurant.update({ // sequelize update
-            name, tel, address, opening_hours, description
+            name, tel, address, opening_hours, description, image: restaurant.image
           })
         })
         .then(() => {
