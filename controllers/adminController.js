@@ -7,6 +7,12 @@ const adminController = {
       raw: true
     }).then(restaurants => res.render('admin/restaurants', { restaurants }))
   },
+  getRestaurant: (req, res) => {
+    return Restaurant.findByPk(req.params.id, { raw: true })
+      .then(restaurant => {
+        return res.render('admin/restaurant', { restaurant })
+      })
+  },
   createRestaurants: (req, res) => {
     return res.render('admin/create')
   },
@@ -23,7 +29,7 @@ const adminController = {
       req.flash('success_messages', 'restaurant was successfully created')
       res.redirect('/admin/restaurants')
     })
-  }
+  },
 }
 
 module.exports = adminController
