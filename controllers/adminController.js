@@ -1,3 +1,4 @@
+const fs = require('fs')
 const db = require('../models')
 const Restaurant = db.Restaurant
 
@@ -26,12 +27,34 @@ const adminController = {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
     }
-    return Restaurant.create({
-      name, tel, address, opening_hours, description
-    }).then(() => {
-      req.flash('success_messages', 'restaurant was successfully created')
-      res.redirect('/admin/restaurants')
-    })
+    const { file } = req // multer attach file to req.file
+    if (file) {
+      fs.readFile(file.path, (err, data) => {
+        if (err) console.log('Error: ', err)
+        // write data into upload folder then save to database
+        fs.writeFile(`upload/${file.originalname}`, data, () => {
+          return Restaurant.create({
+            name, tel, address, opening_hours, description,
+            image: file ? `/upload/${file.originalname}` : null
+          })
+            .then(() => {
+              req.flash('success_messages', 'restaurant was successfully created')
+              res.redirect('/admin/restaurants')
+            })
+
+        })
+      })
+    } else {
+      return Restaurant.create({
+        name, tel, address, opening_hours, description,
+        image: null
+      })
+        .then(() => {
+          req.flash('success_messages', 'restaurant was successfully created')
+          res.redirect('/admin/restaurants')
+        })
+    }
+
   },
   // edit form
   editRestaurant: (req, res) => {
@@ -47,16 +70,36 @@ const adminController = {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
     }
-    return Restaurant.findByPk(req.params.id) // no need raw:true since we still need to use sequelize update
-      .then(restaurant => {
-        return restaurant.update({ // sequelize update
-          name, tel, address, opening_hours, description
+    const { file } = req
+    if (file) {
+      fs.readFile(file.path, (err, data) => {
+        if (err) console.log('Error: ', err)
+        fs.writeFile(`upload/${file.originalname}`, data, () => {
+          return Restaurant.findByPk(req.params.id)
+            .then(restaurant => {
+              return restaurant.update({ // sequelize update
+                name, tel, address, opening_hours, description,
+                image: file ? `/upload/${file.originalname}` : restaurant.image
+              })
+            })
+            .then(() => {
+              req.flash('success_messages', 'restaurant was successfully updated')
+              return res.redirect('/admin/restaurants')
+            })
         })
       })
-      .then(restaurant => {
-        req.flash('success_messages', 'restaurant was successfully updated')
-        return res.redirect('/admin/restaurants')
-      })
+    } else {
+      return Restaurant.findByPk(req.params.id) // no need raw:true since we still need to use sequelize update
+        .then(restaurant => {
+          return restaurant.update({ // sequelize update
+            name, tel, address, opening_hours, description
+          })
+        })
+        .then(() => {
+          req.flash('success_messages', 'restaurant was successfully updated')
+          return res.redirect('/admin/restaurants')
+        })
+    }
   },
   deleteRestaurant: (req, res) => {
     Restaurant.findByPk(req.params.id)

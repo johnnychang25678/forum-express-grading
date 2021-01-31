@@ -13,6 +13,7 @@ const port = 3000
 app.engine('handlebars', handlebars({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
+app.use('/upload', express.static(__dirname + '/upload')) // __dirname: current directory name
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }))
