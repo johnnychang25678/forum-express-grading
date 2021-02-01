@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const helpers = require('../_helpers')
-=======
-const helper = require('../_helpers')
->>>>>>> master
 const restController = require('../controllers/restController')
 const adminController = require('../controllers/adminController')
 const userController = require('../controllers/userController')
