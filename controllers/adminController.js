@@ -43,12 +43,18 @@ const adminController = {
   },
   // create form
   createRestaurants: (req, res) => {
-    return res.render('admin/create')
+    Category.findAll({
+      raw: true,
+      nest: true
+    }).then(categories => {
+      return res.render('admin/create', { categories })
+    })
+
   },
   // create new restaurant
   postRestaurant: (req, res) => {
     console.log('------------req.file: ', req.file)
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
     if (!name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -62,7 +68,8 @@ const adminController = {
         // write data into upload folder then save to database
         return Restaurant.create({
           name, tel, address, opening_hours, description,
-          image: file ? img.data.link : null
+          image: file ? img.data.link : null,
+          CategoryId: categoryId
         })
           .then(() => {
             req.flash('success_messages', 'restaurant was successfully created')
@@ -72,7 +79,8 @@ const adminController = {
     } else {
       return Restaurant.create({
         name, tel, address, opening_hours, description,
-        image: null
+        image: null,
+        CategoryId: categoryId
       })
         .then(() => {
           req.flash('success_messages', 'restaurant was successfully created')
@@ -83,14 +91,20 @@ const adminController = {
   },
   // edit form
   editRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { raw: true })
-      .then(restaurant => {
-        return res.render('admin/create', { restaurant })
-      })
+    Category.findAll({
+      raw: true,
+      nest: true
+    }).then(categories => {
+      return Restaurant.findByPk(req.params.id, { raw: true })
+        .then(restaurant => {
+          return res.render('admin/create', { categories, restaurant })
+        })
+    })
+
   },
   // update restaurant info
   putRestaurant: (req, res) => {
-    const { name, tel, address, opening_hours, description } = req.body
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
     if (!name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -105,7 +119,8 @@ const adminController = {
           .then(restaurant => {
             return restaurant.update({ // sequelize update
               name, tel, address, opening_hours, description,
-              image: file ? img.data.link : restaurant.image
+              image: file ? img.data.link : restaurant.image,
+              CategoryId: categoryId
             })
           })
           .then(() => {
@@ -118,7 +133,9 @@ const adminController = {
       return Restaurant.findByPk(req.params.id) // no need raw:true since we still need to use sequelize update
         .then(restaurant => {
           return restaurant.update({ // sequelize update
-            name, tel, address, opening_hours, description, image: restaurant.image
+            name, tel, address, opening_hours, description,
+            image: restaurant.image,
+            CategoryId: categoryId
           })
         })
         .then(() => {
