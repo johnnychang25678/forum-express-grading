@@ -34,10 +34,13 @@ app.use((req, res, next) => {
   next()
 })
 
+// routes
+app.use(require('./routes/index'))
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
-require('./routes')(app, passport)
+
 
 module.exports = app
