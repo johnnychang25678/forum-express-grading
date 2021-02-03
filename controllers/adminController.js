@@ -3,6 +3,7 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const db = require('../models')
 const Restaurant = db.Restaurant
 const User = db.User
+const Category = db.Category
 
 const adminController = {
   // show all users
@@ -21,12 +22,21 @@ const adminController = {
   // show all restaurants
   getRestaurants: (req, res) => {
     Restaurant.findAll({
-      raw: true
-    }).then(restaurants => res.render('admin/restaurants', { restaurants }))
+      include: [Category],
+      raw: true,
+      nest: true
+    })
+      .then(restaurants => {
+        return res.render('admin/restaurants', { restaurants })
+      })
   },
   // show single restaurant
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, { raw: true })
+    return Restaurant.findByPk(req.params.id, {
+      include: [Category],
+      raw: true,
+      nest: true
+    })
       .then(restaurant => {
         return res.render('admin/restaurant', { restaurant })
       })
