@@ -20,5 +20,6 @@ router.put('/restaurants/:id', upload.single('image'), adminController.putRestau
 router.delete('/restaurants/:id', adminController.deleteRestaurant)
 
 router.get('/categories', categoryController.getCategories)
+router.post('/categories', categoryController.postCategory)
 
 module.exports = router
