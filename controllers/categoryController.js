@@ -7,7 +7,15 @@ const categoryController = {
       raw: true,
       nest: true
     }).then(categories => {
+      if (req.params.id) {
+        return Category.findByPk(req.params.id)
+          .then(category => {
+            return res.render('admin/categories', { category: category.toJSON(), categories })
+          })
+      }
       return res.render('admin/categories', { categories })
+
+
     })
   },
   postCategory: (req, res) => {
@@ -20,7 +28,17 @@ const categoryController = {
       .then(() => {
         res.redirect('/admin/categories')
       })
+  },
+  putCategory: (req, res) => {
+    if (!req.body.name) {
+      req.flash('error_messages', 'name didn\'t exist')
+      return res.redirect('back')
+    }
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        category.update({ name: req.body.name })
+          .then(() => res.redirect('/admin/categories'))
+      })
   }
 }
-
 module.exports = categoryController
