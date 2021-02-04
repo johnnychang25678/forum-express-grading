@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const helpers = require('../../_helpers')
+const { authenticatedUser, authenticatedAdmin } = require('../../middlewares/authentications')
 const passport = require('../../config/passport')
 
 // controllers
@@ -8,20 +8,13 @@ const userController = require('../../controllers/userController')
 const restController = require('../../controllers/restController')
 const commentController = require('../../controllers/commentController')
 
-const authenticated = (req, res, next) => {
-  if (helpers.ensureAuthenticated(req)) {
-    return next()
-  }
-  return res.redirect('/signin')
-}
-
 // home page
 router.get('/', (req, res) => res.redirect('/restaurants'))
 
 // users
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
-// logim
+// login
 router.get('/signin', userController.signInPage)
 router.post('/signin', passport.authenticate('local', {
   failureRedirect: '/signin',
@@ -31,10 +24,11 @@ router.post('/signin', passport.authenticate('local', {
 router.get('/logout', userController.logout)
 
 // restaurants
-router.get('/restaurants', authenticated, restController.getRestaurants)
-router.get('/restaurants/:id', authenticated, restController.getRestaurant)
+router.get('/restaurants', authenticatedUser, restController.getRestaurants)
+router.get('/restaurants/:id', authenticatedUser, restController.getRestaurant)
 
 // comments
-router.post('/comments', authenticated, commentController.postComment)
+router.post('/comments', authenticatedUser, commentController.postComment)
+router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 
 module.exports = router
