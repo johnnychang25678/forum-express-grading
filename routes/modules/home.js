@@ -6,6 +6,7 @@ const passport = require('../../config/passport')
 // controllers
 const userController = require('../../controllers/userController')
 const restController = require('../../controllers/restController')
+const commentController = require('../../controllers/commentController')
 
 const authenticated = (req, res, next) => {
   if (helpers.ensureAuthenticated(req)) {
@@ -33,5 +34,7 @@ router.get('/logout', userController.logout)
 router.get('/restaurants', authenticated, restController.getRestaurants)
 router.get('/restaurants/:id', authenticated, restController.getRestaurant)
 
+// comments
+router.post('/comments', authenticated, commentController.postComment)
 
 module.exports = router
