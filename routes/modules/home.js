@@ -14,11 +14,13 @@ const authenticated = (req, res, next) => {
   return res.redirect('/signin')
 }
 
+// home page
 router.get('/', (req, res) => res.redirect('/restaurants'))
-router.get('/restaurants', authenticated, restController.getRestaurants)
+
+// users
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
-// login
+// logim
 router.get('/signin', userController.signInPage)
 router.post('/signin', passport.authenticate('local', {
   failureRedirect: '/signin',
@@ -26,5 +28,10 @@ router.post('/signin', passport.authenticate('local', {
 }), userController.signIn)
 // logout
 router.get('/logout', userController.logout)
+
+// restaurants
+router.get('/restaurants', authenticated, restController.getRestaurants)
+router.get('/restaurants/:id', authenticated, restController.getRestaurant)
+
 
 module.exports = router
