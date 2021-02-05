@@ -28,6 +28,7 @@ router.get('/logout', userController.logout)
 
 // restaurants
 router.get('/restaurants', authenticatedUser, restController.getRestaurants)
+router.get('/restaurants/feeds', authenticatedUser, restController.getFeeds)
 router.get('/restaurants/:id', authenticatedUser, restController.getRestaurant)
 
 // comments
