@@ -3,6 +3,9 @@ const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
+const Comment = db.Comment
+const Restaurant = db.Restaurant
+const helpers = require('../_helpers')
 
 let userController = {
   signUpPage: (req, res) => res.render('signup'),
@@ -44,20 +47,28 @@ let userController = {
     res.redirect('/signin')
   },
   getUser: (req, res) => {
-    return User.findByPk(req.params.id)
+    return User.findByPk(req.params.id, {
+      include: { model: Comment, include: [Restaurant] }
+    })
       .then(user => {
         if (!user) {
           req.flash('error_messages', "The user doesn't exist!")
           return res.redirect('/restaurants') // route to home page if no user
         }
-        return res.render('profile', { profile: user.toJSON() })
+        const profile = user.toJSON()
+        const commentedRestaurants = profile.Comments.map(comment => comment.Restaurant)
+
+        return res.render('profile', {
+          profile,
+          commentedRestaurants
+        })
       })
 
   },
   editUser: (req, res) => {
-    if (req.user.id !== Number(req.params.id)) { // user can only edit their own profile
+    if (helpers.getUser(req).id !== Number(req.params.id)) { // user can only edit their own profile
       req.flash('error_messages', "You can only edit your own profile!")
-      return res.redirect(`/users/${req.user.id}`)
+      return res.redirect(`/users/${helpers.getUser(req).id}`)
     }
     return User.findByPk(req.params.id)
       .then(user => {
@@ -78,7 +89,6 @@ let userController = {
       imgur.setClientID(IMGUR_CLIENT_ID)
       imgur.upload(req.file.path, (err, img) => {
         if (err) console.log('Error: ', err)
-        console.log(img.data.link)
         return User.findByPk(req.params.id)
           .then(user => {
             return user.update({
