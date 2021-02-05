@@ -30,6 +30,7 @@ router.get('/logout', userController.logout)
 router.get('/restaurants', authenticatedUser, restController.getRestaurants)
 router.get('/restaurants/feeds', authenticatedUser, restController.getFeeds)
 router.get('/restaurants/:id', authenticatedUser, restController.getRestaurant)
+router.get('/restaurants/:id/dashboard', authenticatedUser, restController.getDashboard)
 
 // comments
 router.post('/comments', authenticatedUser, commentController.postComment)
