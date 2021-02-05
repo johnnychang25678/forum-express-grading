@@ -65,8 +65,16 @@ const restController = {
       ]
     })
       .then(restaurant => {
-        return res.render('restaurant', { restaurant: restaurant.toJSON() })
+        return Restaurant.increment('viewCounts', {
+          by: 1,
+          where: { id: restaurant.id }
+        }).then(() => {
+          return res.render('restaurant', { restaurant: restaurant.toJSON() })
+        })
       })
+
+
+
   },
   getFeeds: (req, res) => {
     const restaurantFindAll = Restaurant.findAll({
