@@ -8,10 +8,13 @@ const userController = require('../../controllers/userController')
 const restController = require('../../controllers/restController')
 const commentController = require('../../controllers/commentController')
 
+const multer = require('multer')
+const upload = multer({ dest: 'temp/' })
+
 // home page
 router.get('/', (req, res) => res.redirect('/restaurants'))
 
-// users
+// signup
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp)
 // login
@@ -31,4 +34,8 @@ router.get('/restaurants/:id', authenticatedUser, restController.getRestaurant)
 router.post('/comments', authenticatedUser, commentController.postComment)
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 
+// users
+router.get('/users/:id', authenticatedUser, userController.getUser)
+router.get('/users/:id/edit', authenticatedUser, userController.editUser)
+router.put('/users/:id', authenticatedUser, upload.single('image'), userController.putUser)
 module.exports = router

@@ -1,3 +1,5 @@
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
@@ -40,6 +42,68 @@ let userController = {
     req.flash('success_message', '登出成功！')
     req.logout()
     res.redirect('/signin')
+  },
+  getUser: (req, res) => {
+    return User.findByPk(req.params.id)
+      .then(user => {
+        if (!user) {
+          req.flash('error_messages', "The user doesn't exist!")
+          return res.redirect('/restaurants') // route to home page if no user
+        }
+        return res.render('profile', { profile: user.toJSON() })
+      })
+
+  },
+  editUser: (req, res) => {
+    if (req.user.id !== Number(req.params.id)) { // user can only edit their own profile
+      req.flash('error_messages', "You can only edit your own profile!")
+      return res.redirect(`/users/${req.user.id}`)
+    }
+    return User.findByPk(req.params.id)
+      .then(user => {
+        if (!user) {
+          req.flash('error_messages', "The user doesn't exist!")
+          return res.redirect('/restaurants') // route to home page if no user
+        }
+        return res.render('editProfile', { profile: user.toJSON() })
+      })
+
+  },
+  putUser: (req, res) => {
+    if (!req.body.name) {
+      req.flash('error_messages', "name didn't exist")
+      return res.redirect('back')
+    }
+    if (req.file) { // if user uploads profile image
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(req.file.path, (err, img) => {
+        if (err) console.log('Error: ', err)
+        console.log(img.data.link)
+        return User.findByPk(req.params.id)
+          .then(user => {
+            return user.update({
+              name: req.body.name,
+              image: img.data.link
+            })
+          })
+          .then(user => {
+            req.flash('success_messages', 'User profile was successfully updated')
+            return res.redirect(`/users/${user.id}`)
+          })
+      })
+    } else { // if user doesn't upload image
+      return User.findByPk(req.params.id)
+        .then(user => {
+          return user.update({
+            name: req.body.name,
+            image: user.image
+          })
+        })
+        .then(user => {
+          req.flash('success_messages', 'User profile was successfully updated')
+          return res.redirect(`/users/${user.id}`)
+        })
+    }
   }
 }
 

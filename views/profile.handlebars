@@ -1,0 +1,23 @@
+<div class="profile-container d-flex justify-content-center">
+  <div class="card mb-3" style="width: 540px;">
+    <div class="row no-gutters">
+      <div class="col-md-4">
+        <img src="{{profile.image}}" alt="user profile" class="img-fluid">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body">
+          <h5 class="card-title">{{profile.name}}</h5>
+          <p class="card-text">{{profile.email}}</p>
+
+          {{!-- only shows edit button if user is on their own profile --}}
+          {{#ifCond user.id profile.id}}
+            <a href="/users/{{profile.id}}/edit">
+              <button class="btn btn-primary">Edit</button>
+            </a>
+          {{/ifCond}}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
