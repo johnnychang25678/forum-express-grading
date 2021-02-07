@@ -5,6 +5,7 @@ const db = require('../models')
 const User = db.User
 const Comment = db.Comment
 const Restaurant = db.Restaurant
+const Favorite = db.Favorite
 const helpers = require('../_helpers')
 
 let userController = {
@@ -114,6 +115,23 @@ let userController = {
           return res.redirect(`/users/${user.id}`)
         })
     }
+  },
+  addFavorite: (req, res) => {
+    return Favorite.create({
+      UserId: req.user.id, // from passport
+      RestaurantId: req.params.restaurantId
+    })
+      .then(() => res.redirect('back'))
+  },
+  removeFavorite: (req, res) => {
+    return Favorite.findOne({
+      where: {
+        UserId: req.user.id,
+        RestaurantId: req.params.restaurantId
+      }
+    })
+      .then(favorite => favorite.destroy())
+      .then(() => res.redirect('back'))
   }
 }
 

@@ -40,4 +40,9 @@ router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComme
 router.get('/users/:id', authenticatedUser, userController.getUser)
 router.get('/users/:id/edit', authenticatedUser, userController.editUser)
 router.put('/users/:id', authenticatedUser, upload.single('image'), userController.putUser)
+
+// favorites
+router.post('/favorite/:restaurantId', authenticatedUser, userController.addFavorite)
+router.delete('/favorite/:restaurantId', authenticatedUser, userController.removeFavorite)
+
 module.exports = router
