@@ -84,19 +84,16 @@ let userController = {
 
   },
   putUser: (req, res) => {
-    console.log('-----------put request----------')
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
     }
     if (req.file) { // if user uploads profile image
-      console.log('----------Uploading image 1----------')
       imgur.setClientId(IMGUR_CLIENT_ID)
       imgur.uploadFile(req.file.path)
         .then(img => {
           return User.findByPk(req.params.id)
             .then(user => {
-              console.log('-------------Complete upload-----------')
               return user.update({
                 name: req.body.name,
                 image: img.data.link
@@ -107,22 +104,6 @@ let userController = {
               return res.redirect(`/users/${user.id}`)
             })
         })
-      // imgur.upload(req.file.path, (err, img) => {
-      //   if (err) console.log('Error: ', err)
-      //   console.log('----------Uploading image 2----------')
-      //   return User.findByPk(req.params.id)
-      //     .then(user => {
-      //       console.log('-------------Complete upload-----------')
-      //       return user.update({
-      //         name: req.body.name,
-      //         image: img.data.link
-      //       })
-      //     })
-      //     .then(user => {
-      //       req.flash('success_messages', 'User profile was successfully updated')
-      //       return res.redirect(`/users/${user.id}`)
-      //     })
-      // })
     } else { // if user doesn't upload image
       return User.findByPk(req.params.id)
         .then(user => {

@@ -1,4 +1,4 @@
-const imgur = require('imgur-node-api')
+const imgur = require('imgur')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const db = require('../models')
 const Restaurant = db.Restaurant
@@ -61,21 +61,19 @@ const adminController = {
     }
     const { file } = req // multer attach file to req.file
     if (file) {
-      imgur.setClientID(IMGUR_CLIENT_ID)
-      imgur.upload(file.path, (err, img) => {
-        console.log('-------uploading image---------')
-        if (err) console.log('Error: ', err)
-        // write data into upload folder then save to database
-        return Restaurant.create({
-          name, tel, address, opening_hours, description,
-          image: file ? img.data.link : null,
-          CategoryId: categoryId
-        })
-          .then(() => {
-            req.flash('success_messages', 'restaurant was successfully created')
-            res.redirect('/admin/restaurants')
+      imgur.setClientId(IMGUR_CLIENT_ID)
+      imgur.uploadFile(req.file.path)
+        .then(img => {
+          return Restaurant.create({
+            name, tel, address, opening_hours, description,
+            image: file ? img.data.link : null,
+            CategoryId: categoryId
           })
-      })
+            .then(() => {
+              req.flash('success_messages', 'restaurant was successfully created')
+              res.redirect('/admin/restaurants')
+            })
+        })
     } else {
       return Restaurant.create({
         name, tel, address, opening_hours, description,
@@ -111,24 +109,22 @@ const adminController = {
     }
     const { file } = req
     if (file) {
-      imgur.setClientID(IMGUR_CLIENT_ID)
-      imgur.upload(file.path, (err, img) => {
-        console.log('-------uploading image---------')
-        if (err) console.log('Error: ', err)
-        return Restaurant.findByPk(req.params.id)
-          .then(restaurant => {
-            return restaurant.update({ // sequelize update
-              name, tel, address, opening_hours, description,
-              image: file ? img.data.link : restaurant.image,
-              CategoryId: categoryId
+      imgur.setClientId(IMGUR_CLIENT_ID)
+      imgur.uploadFile(req.file.path)
+        .then(img => {
+          return Restaurant.findByPk(req.params.id)
+            .then(restaurant => {
+              return restaurant.update({ // sequelize update
+                name, tel, address, opening_hours, description,
+                image: file ? img.data.link : restaurant.image,
+                CategoryId: categoryId
+              })
             })
-          })
-          .then(() => {
-            req.flash('success_messages', 'restaurant was successfully updated')
-            return res.redirect('/admin/restaurants')
-          })
-      })
-
+            .then(() => {
+              req.flash('success_messages', 'restaurant was successfully updated')
+              return res.redirect('/admin/restaurants')
+            })
+        })
     } else {
       return Restaurant.findByPk(req.params.id) // no need raw:true since we still need to use sequelize update
         .then(restaurant => {
