@@ -9,6 +9,8 @@ const Favorite = db.Favorite
 const Like = db.Like
 const helpers = require('../_helpers')
 
+let imageUploading = false
+
 let userController = {
   signUpPage: (req, res) => res.render('signup'),
   signUp: (req, res) => {
@@ -68,6 +70,7 @@ let userController = {
 
   },
   editUser: (req, res) => {
+
     if (helpers.getUser(req).id !== Number(req.params.id)) { // user can only edit their own profile
       req.flash('error_messages', "You can only edit your own profile!")
       return res.redirect(`/users/${helpers.getUser(req).id}`)
@@ -78,12 +81,12 @@ let userController = {
           req.flash('error_messages', "The user doesn't exist!")
           return res.redirect('/restaurants') // route to home page if no user
         }
-        return res.render('editProfile', { profile: user.toJSON() })
+        return res.render('editProfile', { profile: user.toJSON(), imageUploading })
       })
 
   },
   putUser: (req, res) => {
-    let uploading = false
+
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -94,7 +97,7 @@ let userController = {
         if (err) console.log('Error: ', err)
         return User.findByPk(req.params.id)
           .then(user => {
-            uploading = false
+            imageUploading = false
             return user.update({
               name: req.body.name,
               image: img.data.link
@@ -107,9 +110,9 @@ let userController = {
       })
       return User.findByPk(req.params.id)
         .then(user => {
-          uploading = true
+          imageUploading = true
           return res.render('profile', {
-            uploading,
+            imageUploading,
             profile: user.toJSON()
           })
         })
