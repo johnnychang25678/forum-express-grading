@@ -7,6 +7,7 @@ const Comment = db.Comment
 const Restaurant = db.Restaurant
 const Favorite = db.Favorite
 const Like = db.Like
+const Followship = db.Followship
 const helpers = require('../_helpers')
 
 let userController = {
@@ -166,6 +167,23 @@ let userController = {
         })).sort((a, b) => b.FollowerCount - a.FollowerCount)
         return res.render('topUser', { users: userData })
       })
+  },
+  addFollowing: (req, res) => {
+    return Followship.create({
+      followerId: req.user.id,
+      followingId: req.params.userId
+    })
+      .then(() => res.redirect('back'))
+  },
+  removeFollowing: (req, res) => {
+    return Followship.findOne({
+      where: {
+        followerId: req.user.id,
+        followingId: req.params.userId
+      }
+    })
+      .then(followship => followship.destroy())
+      .then(() => res.redirect('back'))
   }
 }
 

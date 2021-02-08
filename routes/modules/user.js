@@ -7,9 +7,9 @@ const multer = require('multer')
 const upload = multer({ dest: 'temp/' })
 
 // users
-router.get('/top', userController.getTopUser)
-router.get('/:id', userController.getUser)
-router.get('/:id/edit', userController.editUser)
+router.get('/top', userController.getTopUser) // top users page
+router.get('/:id', userController.getUser) // single user page
+router.get('/:id/edit', userController.editUser) // edit user page
 router.put('/:id', upload.single('image'), userController.putUser)
 
 
