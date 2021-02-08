@@ -68,6 +68,7 @@ let userController = {
 
   },
   editUser: (req, res) => {
+
     if (helpers.getUser(req).id !== Number(req.params.id)) { // user can only edit their own profile
       req.flash('error_messages', "You can only edit your own profile!")
       return res.redirect(`/users/${helpers.getUser(req).id}`)
@@ -83,6 +84,7 @@ let userController = {
 
   },
   putUser: (req, res) => {
+
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -91,8 +93,10 @@ let userController = {
       imgur.setClientID(IMGUR_CLIENT_ID)
       imgur.upload(req.file.path, (err, img) => {
         if (err) console.log('Error: ', err)
+        console.log('----------Uploading image----------')
         return User.findByPk(req.params.id)
           .then(user => {
+            console.log('-------------Complete upload-----------')
             return user.update({
               name: req.body.name,
               image: img.data.link
