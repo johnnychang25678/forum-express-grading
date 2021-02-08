@@ -5,14 +5,16 @@ const passport = require('../../config/passport')
 
 // controllers
 const userController = require('../../controllers/userController')
-const restController = require('../../controllers/restController')
 const commentController = require('../../controllers/commentController')
+
 
 const multer = require('multer')
 const upload = multer({ dest: 'temp/' })
 
 // home page
-router.get('/', (req, res) => res.redirect('/restaurants'))
+router.get('/', (req, res) => {
+  return res.redirect('/restaurants')
+})
 
 // signup
 router.get('/signup', userController.signUpPage)
@@ -25,12 +27,6 @@ router.post('/signin', passport.authenticate('local', {
 }), userController.signIn)
 // logout
 router.get('/logout', userController.logout)
-
-// restaurants
-router.get('/restaurants', authenticatedUser, restController.getRestaurants)
-router.get('/restaurants/feeds', authenticatedUser, restController.getFeeds)
-router.get('/restaurants/:id', authenticatedUser, restController.getRestaurant)
-router.get('/restaurants/:id/dashboard', authenticatedUser, restController.getDashboard)
 
 // comments
 router.post('/comments', authenticatedUser, commentController.postComment)

@@ -12,13 +12,13 @@
   {{#if category}}
     <form action="/admin/categories/{{category.id}}?_method=PUT" method="POST">
       <input type="text" placeholder="name" name="name" value="{{category.name}}">
-      <button type="submit">Update</button>
-      <a href="/admin/categories">or Create New</a>
+      <button type="submit" class="btn btn-primary">更新類別</button>
+      <a href="/admin/categories">或新增類別</a>
     </form>
   {{else}}
     <form action="/admin/categories" method="POST">
       <input type="text" placeholder="name" name="name">
-      <button type="submit">Submit</button>
+      <button type="submit" class="btn btn-primary">新增類別</button>
     </form>
   {{/if}}
 </div>

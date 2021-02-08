@@ -40,13 +40,17 @@ const restController = {
         const prev = page - 1 < 1 ? 1 : page - 1
         const next = page + 1 > pages ? pages : page + 1
 
+        const favoritedRestaurants = helpers.getUser(req).FavoritedRestaurants
+        const likedRestaurants = helpers.getUser(req).LikedRestaurants
+
+
         const data = restaurants.rows.map(restaurant => {
           return {
             ...restaurant.dataValues,
             description: restaurant.dataValues.description.substring(0, 50),
             categoryName: restaurant.Category.name,
-            isFavorited: helpers.getUser(req).id.FavoritedRestaurants.map(favorite => favorite.id).includes(restaurant.id),
-            isLiked: helpers.getUser(req).id.LikedRestaurants.map(like => like.id).includes(restaurant.id) // boolean array
+            isFavorited: favoritedRestaurants ? favoritedRestaurants.map(favorite => favorite.id).includes(restaurant.id) : null,
+            isLiked: likedRestaurants ? likedRestaurants.map(like => like.id).includes(restaurant.id) : null
           }
         })
         return res.render('restaurants', {
@@ -71,16 +75,16 @@ const restController = {
       ]
     })
       .then(restaurant => {
-        const isFavorited = restaurant.FavoriteUsers.map(favorite => favorite.id).includes(helpers.getUser(req).id)
-        const isLiked = restaurant.LikedUsers.map(like => like.id).includes(helpers.getUser(req).id)
+        const favoritedUsers = restaurant.FavoriteUsers
+        const likedUsers = restaurant.LikedUsers
         return Restaurant.increment('viewCounts', {
           by: 1,
           where: { id: restaurant.id }
         }).then(() => {
           return res.render('restaurant', {
             restaurant: restaurant.toJSON(),
-            isFavorited,
-            isLiked
+            isFavorited: favoritedUsers ? favoritedUsers.map(favorite => favorite.id).includes(helpers.getUser(req).id) : null,
+            isLiked: likedUsers ? likedUsers.map(like => like.id).includes(helpers.getUser(req).id) : null
           })
         })
       })
