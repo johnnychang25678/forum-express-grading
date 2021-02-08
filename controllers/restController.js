@@ -4,6 +4,8 @@ const Category = db.Category
 const User = db.User
 const Comment = db.Comment
 
+const helpers = require('../_helpers')
+
 const pageLimit = 10
 
 const restController = {
@@ -43,7 +45,8 @@ const restController = {
             ...restaurant.dataValues,
             description: restaurant.dataValues.description.substring(0, 50),
             categoryName: restaurant.Category.name,
-            isFavorited: req.user.FavoritedRestaurants.map(favorite => favorite.id).includes(restaurant.id)
+            isFavorited: helpers.getUser(req).id.FavoritedRestaurants.map(favorite => favorite.id).includes(restaurant.id),
+            isLiked: helpers.getUser(req).id.LikedRestaurants.map(like => like.id).includes(restaurant.id) // boolean array
           }
         })
         return res.render('restaurants', {
@@ -63,18 +66,21 @@ const restController = {
       include: [
         Category,
         { model: User, as: 'FavoriteUsers' },
+        { model: User, as: 'LikedUsers' },
         { model: Comment, include: [User] }
       ]
     })
       .then(restaurant => {
-        const isFavorited = restaurant.FavoriteUsers.map(favorite => favorite.id).includes(req.user.id)
+        const isFavorited = restaurant.FavoriteUsers.map(favorite => favorite.id).includes(helpers.getUser(req).id)
+        const isLiked = restaurant.LikedUsers.map(like => like.id).includes(helpers.getUser(req).id)
         return Restaurant.increment('viewCounts', {
           by: 1,
           where: { id: restaurant.id }
         }).then(() => {
           return res.render('restaurant', {
             restaurant: restaurant.toJSON(),
-            isFavorited
+            isFavorited,
+            isLiked
           })
         })
       })
