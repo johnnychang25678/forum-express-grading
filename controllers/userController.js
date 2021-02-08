@@ -83,6 +83,7 @@ let userController = {
 
   },
   putUser: (req, res) => {
+    let uploading = false
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
@@ -93,16 +94,27 @@ let userController = {
         if (err) console.log('Error: ', err)
         return User.findByPk(req.params.id)
           .then(user => {
+            uploading = false
             return user.update({
               name: req.body.name,
               image: img.data.link
             })
           })
-          .then(user => {
-            req.flash('success_messages', 'User profile was successfully updated')
-            return res.redirect(`/users/${user.id}`)
-          })
+        // .then(user => {
+        //   req.flash('success_messages', 'User profile was successfully updated')
+        //   return res.redirect(`/users/${user.id}`)
+        // })
       })
+      return User.findByPk(req.params.id)
+        .then(user => {
+          uploading = true
+          return res.render('profile', {
+            uploading,
+            profile: user.toJSON()
+          })
+        })
+
+
     } else { // if user doesn't upload image
       return User.findByPk(req.params.id)
         .then(user => {

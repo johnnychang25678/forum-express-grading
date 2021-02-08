@@ -1,4 +1,9 @@
 <div class="profile-container d-flex flex-column justify-content-center align-items-center">
+  {{#if uploading}}
+    <div class="alert alert-warning" role="alert">
+      正在處理您剛剛上傳的檔案圖片...請稍後再回來確認...
+    </div>
+  {{/if}}
   <div class="card mb-3" style="width: 768px;">
     <div class="row no-gutters">
       <div class="col-md-4">
