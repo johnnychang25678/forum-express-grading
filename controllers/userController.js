@@ -1,4 +1,4 @@
-const imgur = require('imgur-node-api')
+const imgur = require('imgur')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 const bcrypt = require('bcryptjs')
 const db = require('../models')
@@ -91,23 +91,38 @@ let userController = {
     }
     if (req.file) { // if user uploads profile image
       console.log('----------Uploading image 1----------')
-      imgur.setClientID(IMGUR_CLIENT_ID)
-      imgur.upload(req.file.path, (err, img) => {
-        if (err) console.log('Error: ', err)
-        console.log('----------Uploading image 2----------')
-        return User.findByPk(req.params.id)
-          .then(user => {
-            console.log('-------------Complete upload-----------')
-            return user.update({
-              name: req.body.name,
-              image: img.data.link
+      imgur.setClientId(IMGUR_CLIENT_ID)
+      imgur.uploadFile(req.file.path)
+        .then(img => {
+          return User.findByPk(req.params.id)
+            .then(user => {
+              console.log('-------------Complete upload-----------')
+              return user.update({
+                name: req.body.name,
+                image: img.data.link
+              })
             })
-          })
-          .then(user => {
-            req.flash('success_messages', 'User profile was successfully updated')
-            return res.redirect(`/users/${user.id}`)
-          })
-      })
+            .then(user => {
+              req.flash('success_messages', 'User profile was successfully updated')
+              return res.redirect(`/users/${user.id}`)
+            })
+        })
+      // imgur.upload(req.file.path, (err, img) => {
+      //   if (err) console.log('Error: ', err)
+      //   console.log('----------Uploading image 2----------')
+      //   return User.findByPk(req.params.id)
+      //     .then(user => {
+      //       console.log('-------------Complete upload-----------')
+      //       return user.update({
+      //         name: req.body.name,
+      //         image: img.data.link
+      //       })
+      //     })
+      //     .then(user => {
+      //       req.flash('success_messages', 'User profile was successfully updated')
+      //       return res.redirect(`/users/${user.id}`)
+      //     })
+      // })
     } else { // if user doesn't upload image
       return User.findByPk(req.params.id)
         .then(user => {
