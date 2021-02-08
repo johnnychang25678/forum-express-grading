@@ -9,6 +9,8 @@ const Favorite = db.Favorite
 const Like = db.Like
 const helpers = require('../_helpers')
 
+let imageUploading = false
+
 let userController = {
   signUpPage: (req, res) => res.render('signup'),
   signUp: (req, res) => {
@@ -79,7 +81,7 @@ let userController = {
           req.flash('error_messages', "The user doesn't exist!")
           return res.redirect('/restaurants') // route to home page if no user
         }
-        return res.render('editProfile', { profile: user.toJSON() })
+        return res.render('editProfile', { profile: user.toJSON(), imageUploading })
       })
 
   },
