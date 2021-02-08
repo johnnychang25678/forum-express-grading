@@ -32,11 +32,6 @@ router.get('/logout', userController.logout)
 router.post('/comments', authenticatedUser, commentController.postComment)
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 
-// users
-router.get('/users/:id', authenticatedUser, userController.getUser)
-router.get('/users/:id/edit', authenticatedUser, userController.editUser)
-router.put('/users/:id', authenticatedUser, upload.single('image'), userController.putUser)
-
 // favorites
 router.post('/favorite/:restaurantId', authenticatedUser, userController.addFavorite)
 router.delete('/favorite/:restaurantId', authenticatedUser, userController.removeFavorite)
