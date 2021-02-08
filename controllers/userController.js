@@ -68,7 +68,6 @@ let userController = {
 
   },
   editUser: (req, res) => {
-    console.log('-------edit page----------')
     if (helpers.getUser(req).id !== Number(req.params.id)) { // user can only edit their own profile
       req.flash('error_messages', "You can only edit your own profile!")
       return res.redirect(`/users/${helpers.getUser(req).id}`)
@@ -151,6 +150,22 @@ let userController = {
     })
       .then(like => like.destroy())
       .then(() => res.redirect('back'))
+  },
+  getTopUser: (req, res) => {
+    return User.findAll({
+      include: [
+        { model: User, as: 'Followers' }
+      ]
+    })
+      .then(users => {
+        const userData = users.map(user => ({
+          ...user.dataValues,
+          FollowerCount: user.Followers.length, // how many followers do the users have
+          // check if the logged in user is following this user
+          isFollowed: helpers.getUser(req).Followings.map(following => following.id).includes(user.id)
+        })).sort((a, b) => b.FollowerCount - a.FollowerCount)
+        return res.render('topUser', { users: userData })
+      })
   }
 }
 
