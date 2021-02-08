@@ -90,11 +90,11 @@ let userController = {
       return res.redirect('back')
     }
     if (req.file) { // if user uploads profile image
-      console.log('----------Uploading image----------')
+      console.log('----------Uploading image 1----------')
       imgur.setClientID(IMGUR_CLIENT_ID)
       imgur.upload(req.file.path, (err, img) => {
         if (err) console.log('Error: ', err)
-        console.log('----------Uploading image----------')
+        console.log('----------Uploading image 2----------')
         return User.findByPk(req.params.id)
           .then(user => {
             console.log('-------------Complete upload-----------')
