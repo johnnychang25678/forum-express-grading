@@ -7,10 +7,6 @@ const passport = require('../../config/passport')
 const userController = require('../../controllers/userController')
 const commentController = require('../../controllers/commentController')
 
-
-const multer = require('multer')
-const upload = multer({ dest: 'temp/' })
-
 // home page
 router.get('/', (req, res) => {
   return res.redirect('/restaurants')

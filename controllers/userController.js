@@ -51,7 +51,12 @@ let userController = {
   },
   getUser: (req, res) => {
     return User.findByPk(req.params.id, {
-      include: { model: Comment, include: [Restaurant] }
+      include: [
+        { model: Comment, include: [Restaurant] },
+        { model: Restaurant, as: 'FavoritedRestaurants' },
+        { model: User, as: 'Followers' },
+        { model: User, as: 'Followings' }
+      ]
     })
       .then(user => {
         if (!user) {
@@ -60,10 +65,21 @@ let userController = {
         }
         const profile = user.toJSON()
         const commentedRestaurants = profile.Comments.map(comment => comment.Restaurant)
+        // set + map to reomove duplicated id
+        const set = new Set(commentedRestaurants.map(restaurant => restaurant.id))
+        // convert set back to array and map back the commentedRestaurants
+        const nonDuplicatedCommentedRestaurants = Array.from(set).map(id => commentedRestaurants.find(restaurant => restaurant.id === id))
+
+        const favoritedRestaurants = profile.FavoritedRestaurants
+        const followers = profile.Followers
+        const followings = profile.Followings
 
         return res.render('profile', {
           profile,
-          commentedRestaurants
+          nonDuplicatedCommentedRestaurants,
+          favoritedRestaurants,
+          followers,
+          followings
         })
       })
 
@@ -170,7 +186,7 @@ let userController = {
   },
   addFollowing: (req, res) => {
     return Followship.create({
-      followerId: req.user.id,
+      followerId: helpers.getUser(req).id,
       followingId: req.params.userId
     })
       .then(() => res.redirect('back'))
@@ -178,7 +194,7 @@ let userController = {
   removeFollowing: (req, res) => {
     return Followship.findOne({
       where: {
-        followerId: req.user.id,
+        followerId: helpers.getUser(req).id,
         followingId: req.params.userId
       }
     })

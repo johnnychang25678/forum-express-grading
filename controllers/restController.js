@@ -3,12 +3,8 @@ const Restaurant = db.Restaurant
 const Category = db.Category
 const User = db.User
 const Comment = db.Comment
-// const Favorite = db.Favorite
-
-const sequelize = db.sequelize
 
 const helpers = require('../_helpers')
-// const { sequelize } = require('../models')
 
 const pageLimit = 10
 
@@ -131,7 +127,6 @@ const restController = {
       ]
     })
       .then(restaurant => {
-        console.log(restaurant)
         return res.render('dashboard', { restaurant: restaurant.toJSON() })
       })
 
