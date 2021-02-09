@@ -3,8 +3,12 @@ const Restaurant = db.Restaurant
 const Category = db.Category
 const User = db.User
 const Comment = db.Comment
+// const Favorite = db.Favorite
+
+const sequelize = db.sequelize
 
 const helpers = require('../_helpers')
+// const { sequelize } = require('../models')
 
 const pageLimit = 10
 
@@ -120,13 +124,39 @@ const restController = {
   },
   getDashboard: (req, res) => {
     return Restaurant.findByPk(req.params.id, {
-      include: [Category, Comment]
+      include: [
+        Category,
+        Comment,
+        { model: User, as: 'FavoriteUsers' }
+      ]
     })
       .then(restaurant => {
+        console.log(restaurant)
         return res.render('dashboard', { restaurant: restaurant.toJSON() })
       })
 
-
+  },
+  getTopRestaurants: (req, res) => {
+    return Restaurant.findAll({
+      include: [
+        {
+          model: User,
+          as: 'FavoriteUsers',
+        }
+      ],
+    })
+      .then(restaurants => {
+        const favoritedRestaurants = helpers.getUser(req).FavoritedRestaurants
+        const restaurantsData = restaurants.map(restaurant => {
+          return {
+            ...restaurant.dataValues,
+            isFavorited: favoritedRestaurants ? favoritedRestaurants.map(favorite => favorite.id).includes(restaurant.id) : null,
+            favoriteUserCount: restaurant.FavoriteUsers.length
+          }
+        }).sort((a, b) => b.favoriteUserCount - a.favoriteUserCount).slice(0, 10)
+        return res.render('topRestaurants', { restaurants: restaurantsData })
+      })
+      .catch(err => console.log(err))
   }
 }
 

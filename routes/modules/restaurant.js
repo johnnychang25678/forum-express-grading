@@ -3,6 +3,7 @@ const router = express.Router()
 const restController = require('../../controllers/restController')
 
 router.get('/', restController.getRestaurants)
+router.get('/top', restController.getTopRestaurants)
 router.get('/feeds', restController.getFeeds)
 router.get('/:id', restController.getRestaurant)
 router.get('/:id/dashboard', restController.getDashboard)
