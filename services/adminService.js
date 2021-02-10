@@ -34,11 +34,9 @@ const adminService = {
 
     Promise.all([findRestaurant, findComments])
       .then(([restaurant, comments]) => {
-        console.log('Restaurant: ', restaurant)
-        console.log('Comments: ', comments)
         const destroyRestaurant = restaurant.destroy()
-        const promises = comments.map(comment => comment.destroy())
-        return Promise.all([destroyRestaurant, promises])
+        const destroyComments = comments.map(comment => comment.destroy())
+        return Promise.all([destroyRestaurant, destroyComments])
       })
       .then(() => callback({ status: 'success', message: '' }))
       .catch(err => console.log(err))
@@ -77,6 +75,42 @@ const adminService = {
     }
 
   },
+  putRestaurant: (req, res, callback) => {
+    const { name, tel, address, opening_hours, description, categoryId } = req.body
+    if (!name) {
+      callback({ status: 'error', message: "name didn't exist" })
+    }
+    const { file } = req
+    if (file) {
+      imgur.setClientId(IMGUR_CLIENT_ID)
+      imgur.uploadFile(req.file.path)
+        .then(img => {
+          return Restaurant.findByPk(req.params.id)
+            .then(restaurant => {
+              return restaurant.update({ // sequelize update
+                name, tel, address, opening_hours, description,
+                image: file ? img.data.link : restaurant.image,
+                CategoryId: categoryId
+              })
+            })
+            .then(() => {
+              callback({ status: 'success', message: 'restaurant was successfully updated' })
+            })
+        })
+    } else {
+      return Restaurant.findByPk(req.params.id) // no need raw:true since we still need to use sequelize update
+        .then(restaurant => {
+          return restaurant.update({ // sequelize update
+            name, tel, address, opening_hours, description,
+            image: restaurant.image,
+            CategoryId: categoryId
+          })
+        })
+        .then(() => {
+          callback({ status: 'success', message: 'restaurant was successfully updated' })
+        })
+    }
+  }
 }
 
 module.exports = adminService

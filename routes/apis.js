@@ -15,5 +15,6 @@ const upload = multer({ dest: 'temp/' })
 
 // 定義路由
 router.post('/admin/restaurants', upload.single('image'), adminController.postRestaurant)
+router.put('/admin/restaurants/:id', upload.single('image'), adminController.putRestaurant)
 
 module.exports = router
