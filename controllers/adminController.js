@@ -4,6 +4,7 @@ const db = require('../models')
 const Restaurant = db.Restaurant
 const User = db.User
 const Category = db.Category
+const adminService = require('../services/adminService')
 
 const adminController = {
   // show all users
@@ -20,15 +21,10 @@ const adminController = {
       })
   },
   // show all restaurants
-  getRestaurants: (req, res) => {
-    Restaurant.findAll({
-      include: [Category],
-      raw: true,
-      nest: true
+  getRestaurants: (req, res, data) => {
+    adminService.getRestaurants(req, res, (data) => {
+      return res.render('admin/restaurants', data)
     })
-      .then(restaurants => {
-        return res.render('admin/restaurants', { restaurants })
-      })
   },
   // show single restaurant
   getRestaurant: (req, res) => {
