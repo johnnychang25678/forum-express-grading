@@ -39,6 +39,12 @@ const categoryService = {
       .then(() => {
         return callback({ status: 'success', message: 'category was successfully updated' })
       })
+  },
+  deleteCategory: (req, res, callback) => {
+    return Category.findByPk(req.params.id)
+      .then(category => category.destroy())
+      .then(() => callback({ status: 'success', message: 'sucessfully deleted' }))
+      .catch(err => callback({ status: 'error', message: err.message }))
   }
 }
 
