@@ -28,14 +28,9 @@ const adminController = {
   },
   // show single restaurant
   getRestaurant: (req, res) => {
-    return Restaurant.findByPk(req.params.id, {
-      include: [Category],
-      raw: true,
-      nest: true
+    adminService.getRestaurant(req, res, (data) => {
+      return res.render('admin/restaurant', data)
     })
-      .then(restaurant => {
-        return res.render('admin/restaurant', { restaurant })
-      })
   },
   // create form
   createRestaurants: (req, res) => {
