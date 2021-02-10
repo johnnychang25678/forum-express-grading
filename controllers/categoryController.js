@@ -33,6 +33,9 @@ const categoryController = {
     categoryService.deleteCategory(req, res, data => {
       if (data.status === 'success') {
         return res.redirect('/admin/categories')
+      } else {
+        req.flash('error_messages', data.message)
+        return res.redirect('/admin/categories')
       }
     })
   }
