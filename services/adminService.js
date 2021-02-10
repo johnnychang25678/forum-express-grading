@@ -13,7 +13,7 @@ const adminService = {
       nest: true
     })
       .then(restaurants => {
-        callback({ restaurants: restaurants }) // if json, will add another layer of {} 
+        return callback({ restaurants: restaurants }) // if json, will add another layer of {} 
       })
   },
   getRestaurant: (req, res, callback) => {
@@ -23,7 +23,7 @@ const adminService = {
       nest: true
     })
       .then(restaurant => {
-        callback({ restaurant })
+        return callback({ restaurant })
       })
   },
   deleteRestaurant: (req, res, callback) => {
@@ -39,12 +39,12 @@ const adminService = {
         return Promise.all([destroyRestaurant, destroyComments])
       })
       .then(() => callback({ status: 'success', message: '' }))
-      .catch(err => console.log(err))
+      .catch(err => callback({ status: 'error', message: err.message }))
   },
   postRestaurant: (req, res, callback) => {
     const { name, tel, address, opening_hours, description, categoryId } = req.body
     if (!name) {
-      callback({ status: 'error', message: "name didn't exist" })
+      return callback({ status: 'error', message: "name didn't exist" })
     }
     const { file } = req // multer attach file to req.file
     if (file) {
@@ -57,11 +57,11 @@ const adminService = {
             CategoryId: categoryId
           })
             .then(() => {
-              callback({ status: 'success', message: 'restaurant was successfully created' })
+              return callback({ status: 'success', message: 'restaurant was successfully created' })
             })
         })
         .catch(err => {
-          callback({ status: 'error', message: err })
+          return callback({ status: 'error', message: err })
         })
     } else {
       return Restaurant.create({
@@ -70,7 +70,7 @@ const adminService = {
         CategoryId: categoryId
       })
         .then(() => {
-          callback({ status: 'success', message: 'restaurant was successfully created' })
+          return callback({ status: 'success', message: 'restaurant was successfully created' })
         })
     }
 
@@ -78,7 +78,7 @@ const adminService = {
   putRestaurant: (req, res, callback) => {
     const { name, tel, address, opening_hours, description, categoryId } = req.body
     if (!name) {
-      callback({ status: 'error', message: "name didn't exist" })
+      return callback({ status: 'error', message: "name didn't exist" })
     }
     const { file } = req
     if (file) {
@@ -94,7 +94,7 @@ const adminService = {
               })
             })
             .then(() => {
-              callback({ status: 'success', message: 'restaurant was successfully updated' })
+              return callback({ status: 'success', message: 'restaurant was successfully updated' })
             })
         })
     } else {
@@ -107,7 +107,7 @@ const adminService = {
           })
         })
         .then(() => {
-          callback({ status: 'success', message: 'restaurant was successfully updated' })
+          return callback({ status: 'success', message: 'restaurant was successfully updated' })
         })
     }
   }
