@@ -1,31 +1,22 @@
 const db = require('../models')
 const Category = db.Category
+const categoryService = require('../services/categoryService')
 
 const categoryController = {
   getCategories: (req, res) => {
-    return Category.findAll({
-      raw: true,
-      nest: true
-    }).then(categories => {
-      if (req.params.id) {
-        return Category.findByPk(req.params.id)
-          .then(category => {
-            return res.render('admin/categories', { category: category.toJSON(), categories })
-          })
-      }
-      return res.render('admin/categories', { categories })
+    categoryService.getCategories(req, res, (data) => {
+      return res.render('admin/categories', data)
     })
   },
   postCategory: (req, res) => {
-    const { name } = req.body
-    if (!name) {
-      req.flash('error_messages', 'name didn\'t exist')
-      return res.redirect('back')
-    }
-    return Category.create({ name })
-      .then(() => {
-        res.redirect('/admin/categories')
-      })
+    categoryService.postCategory(req, res, (data) => {
+      if (data.status === 'error') {
+        req.flash('error_messages', data.message)
+        return res.redirect('back')
+      }
+      req.flash('success_messages', data.message)
+      return res.redirect('/admin/categories')
+    })
   },
   putCategory: (req, res) => {
     if (!req.body.name) {
