@@ -21,6 +21,7 @@ app.set('view engine', 'handlebars')
 
 app.use('/upload', express.static(__dirname + '/upload')) // __dirname: current directory name
 app.use(bodyParser.urlencoded({ extended: true }))
+// app.use(bodyParser.json())
 app.use(methodOverride('_method'))
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }))
 app.use(passport.initialize())

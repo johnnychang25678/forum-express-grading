@@ -44,38 +44,14 @@ const adminController = {
   },
   // create new restaurant
   postRestaurant: (req, res) => {
-    console.log('------------req.file: ', req.file)
-    const { name, tel, address, opening_hours, description, categoryId } = req.body
-    if (!name) {
-      req.flash('error_messages', "name didn't exist")
-      return res.redirect('back')
-    }
-    const { file } = req // multer attach file to req.file
-    if (file) {
-      imgur.setClientId(IMGUR_CLIENT_ID)
-      imgur.uploadFile(req.file.path)
-        .then(img => {
-          return Restaurant.create({
-            name, tel, address, opening_hours, description,
-            image: file ? img.data.link : null,
-            CategoryId: categoryId
-          })
-            .then(() => {
-              req.flash('success_messages', 'restaurant was successfully created')
-              res.redirect('/admin/restaurants')
-            })
-        })
-    } else {
-      return Restaurant.create({
-        name, tel, address, opening_hours, description,
-        image: null,
-        CategoryId: categoryId
-      })
-        .then(() => {
-          req.flash('success_messages', 'restaurant was successfully created')
-          res.redirect('/admin/restaurants')
-        })
-    }
+    adminService.postRestaurant(req, res, (data) => {
+      if (data.status === 'error') {
+        req.flash('error_messages', data.message)
+        return res.redirect('back')
+      }
+      req.flash('success_messages', data.message)
+      return res.redirect('/admin/restaurants')
+    })
 
   },
   // edit form

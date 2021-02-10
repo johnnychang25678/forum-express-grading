@@ -64,9 +64,11 @@ let userController = {
           return res.redirect('/restaurants') // route to home page if no user
         }
         const profile = user.toJSON()
+        // if delete restaurant w/o deleting comment, will map out null
         const commentedRestaurants = profile.Comments.map(comment => comment.Restaurant)
         // set + map to reomove duplicated id
         const set = new Set(commentedRestaurants.map(restaurant => restaurant.id))
+        console.log(set)
         // convert set back to array and map back the commentedRestaurants
         const nonDuplicatedCommentedRestaurants = Array.from(set).map(id => commentedRestaurants.find(restaurant => restaurant.id === id))
 
@@ -82,6 +84,7 @@ let userController = {
           followings
         })
       })
+      .catch(err => console.log(err))
 
   },
   editUser: (req, res) => {

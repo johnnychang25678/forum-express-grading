@@ -9,5 +9,11 @@ router.get('/admin/restaurants/:id', adminController.getRestaurant)
 router.get('/admin/categories', categoryController.getCategories)
 router.delete('/admin/restaurants/:id', adminController.deleteRestaurant)
 
+// 引入 multer 並設定上傳資料夾 
+const multer = require('multer')
+const upload = multer({ dest: 'temp/' })
+
+// 定義路由
+router.post('/admin/restaurants', upload.single('image'), adminController.postRestaurant)
 
 module.exports = router
